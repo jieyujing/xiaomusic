@@ -50,8 +50,42 @@ from xiaomusic.utils.system_utils import (
 )
 
 router = APIRouter(dependencies=[Depends(verification)])
-auth_data_path = config.conf_path if config.conf_path else None
-mi_jia_api = MiJiaAPI(auth_data_path=auth_data_path)
+
+
+def _new_qr_client():
+    # Resolve when called: configuration can change after router import. Always
+    # name the file explicitly so missing/empty directories never select $HOME.
+    auth_path = os.path.abspath(os.path.join(config.conf_path or "conf", "auth.json"))
+    return MiJiaAPI(auth_data_path=auth_path)
+
+
+def _auth_event(event, **fields):
+    record = getattr(xiaomusic.auth_manager, "record_auth_event", None)
+    if callable(record):
+        record(event, **fields)
+
+
+async def _verified_speaker_login(force_login=False):
+    auth = xiaomusic.auth_manager
+    await auth.init_all_data(force_login=force_login)
+    if auth.mina_service is None:
+        return None
+    try:
+        devices = await auth.mina_service.device_list()
+    except Exception as exc:
+        log.warning("Speaker session validation failed: %s", type(exc).__name__)
+        return None
+    return {
+        "success": True,
+        "already_logged_in": True,
+        "device_count": len(devices),
+        "qrcode_url": "",
+        "message": (
+            f"音箱账号已登录，发现 {len(devices)} 台设备，无需扫码"
+            if devices
+            else "音箱账号已登录，但该账号未返回小爱设备，请确认设备绑定账号"
+        ),
+    }
 
 
 @router.get("/")
@@ -67,18 +101,23 @@ async def read_index():
 async def get_qrcode():
     """生成小米账号扫码登录用二维码，返回 base64 图片 URL。"""
     try:
-        qrcode_data = mi_jia_api.get_qrcode()
-        # 已登录时 get_qrcode 返回 False，无需扫码
+        verified = await _verified_speaker_login()
+        if verified is not None:
+            return verified
+        client = _new_qr_client()
+        qrcode_data = await asyncio.to_thread(client.get_qrcode)
         if qrcode_data is False:
-            return {
-                "success": True,
-                "already_logged_in": True,
-                "qrcode_url": "",
-                "message": "已登录，无需扫码",
-            }
+            # A Mijia session does not prove that the speaker service accepted
+            # its passToken. Reload the same persisted credentials in the SDK.
+            verified = await _verified_speaker_login(force_login=True)
+            if verified is not None:
+                return verified
+            # Let the user reauthenticate instead of hiding the QR indefinitely.
+            qrcode_data = await asyncio.to_thread(client.get_qrcode, force=True)
+            if qrcode_data is False:
+                return {"success": False, "message": "音箱登录验证失败，请重新登录"}
 
         # 优先使用小米返回的官方二维码图片 URL，与扫码内容一致且最可靠
-        print(qrcode_data)
         if qrcode_data.get("qr"):
             qrcode_url = qrcode_data["qr"]
         else:
@@ -93,7 +132,8 @@ async def get_qrcode():
             b64 = base64.b64encode(buf.read()).decode("ascii")
             qrcode_url = f"data:image/png;base64,{b64}"
         # 返回二维码的同时，在后台启动 get_logint_status，不阻塞本次响应
-        asyncio.create_task(get_logint_status(qrcode_data["lp"]))
+        asyncio.create_task(get_logint_status(qrcode_data["lp"], client))
+        _auth_event("qr_issued")
         return {
             "success": True,
             "qrcode_url": qrcode_url,
@@ -101,16 +141,23 @@ async def get_qrcode():
             "expire_seconds": config.qrcode_timeout,
         }
     except Exception as e:
-        log.exception("get_qrcode failed: %s", e)
-        return {"success": False, "message": str(e)}
+        _auth_event("qr_issue_failed", error_type=type(e).__name__)
+        log.warning("get_qrcode failed: %s", type(e).__name__)
+        return {"success": False, "message": "二维码获取失败，请检查认证诊断日志"}
 
 
-async def get_logint_status(lp: str):
+async def get_logint_status(lp: str, client=None):
     """轮询获取扫码登录状态"""
     try:
-        await asyncio.to_thread(mi_jia_api.get_logint_status, lp)
-    except ValueError as e:
-        log.exception("get_logint_status failed: %s", e)
+        client = client if client is not None else _new_qr_client()
+        await asyncio.to_thread(client.get_logint_status, lp)
+        _auth_event("qr_scan_completed")
+        await xiaomusic.auth_manager.init_all_data(force_login=True)
+        _auth_event("qr_speaker_initialization_completed",
+                    service_available=xiaomusic.auth_manager.mina_service is not None)
+    except Exception as exc:
+        _auth_event("qr_poll_failed", error_type=type(exc).__name__)
+        log.warning("QR login completion failed: %s", type(exc).__name__)
 
 
 @router.get("/getversion")

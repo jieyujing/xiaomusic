@@ -13,6 +13,7 @@ import time
 
 from aiohttp import ClientSession, ClientTimeout
 
+from xiaomusic.auth_diagnostics import error_fields
 from xiaomusic.const import GET_ASK_BY_MINA, LATEST_ASK_API
 
 REINIT_COOLDOWN_SEC = 60
@@ -53,6 +54,11 @@ class ConversationPoller:
 
         self.polling_event = asyncio.Event()
         self.new_record_event = asyncio.Event()
+
+    def _auth_event(self, event, **fields):
+        record = getattr(self.auth_manager, "record_auth_event", None)
+        if callable(record):
+            record(event, **fields)
 
     async def run_conversation_loop(self, do_check_cmd_callback, reset_timer_callback):
         """运行对话循环
@@ -107,12 +113,25 @@ class ConversationPoller:
         Args:
             session: aiohttp客户端会话
         """
+        waiting_for_login = False
         try:
             while True:
                 if not self.config.enable_pull_ask:
                     self.log.debug("Listening new message disabled")
                     await asyncio.sleep(5)
                     continue
+
+                if self.auth_manager.mina_service is None:
+                    if not waiting_for_login:
+                        self.log.warning("[VOICE-AUTH] Speaker login unavailable; conversation polling paused")
+                        self._auth_event("conversation_paused", reason="speaker_login_unavailable")
+                        waiting_for_login = True
+                    await asyncio.sleep(5)
+                    continue
+                if waiting_for_login:
+                    self.log.info("[VOICE-AUTH] Speaker login restored; conversation polling resumed")
+                    self._auth_event("conversation_resumed")
+                    waiting_for_login = False
 
                 self.log.debug(
                     f"Listening new message, timestamp: {self.last_timestamp}"
@@ -168,9 +187,10 @@ class ConversationPoller:
                 r = await session.get(url, timeout=timeout, cookies=cookies)
 
                 if r.status != 200:
+                    self._auth_event("conversation_http_error", http_status=r.status, attempt=i + 1)
                     self.log.warning(f"Request failed with status {r.status}")
-                    if i == 2 and r.status == 401:
-                        await self._try_reinit("401错误")
+                    if i == 2 and r.status in (400, 401):
+                        await self._try_reinit(f"{r.status}错误")
                     continue
 
             except asyncio.CancelledError:
@@ -178,13 +198,15 @@ class ConversationPoller:
                 return None
 
             except Exception as e:
-                self.log.warning(f"Execption {e}")
+                self._auth_event("conversation_request_error", attempt=i + 1, **error_fields(e))
+                self.log.warning("Conversation request failed: %s", type(e).__name__)
                 continue
 
             try:
                 data = await r.json()
             except Exception as e:
-                self.log.warning(f"Execption {e}")
+                self._auth_event("conversation_response_error", attempt=i + 1, **error_fields(e))
+                self.log.warning("Conversation response failed: %s", type(e).__name__)
                 if i == 2:
                     self.log.info("Maybe outof date trying to re init it")
                     await self._try_reinit("JSON解析失败")
@@ -201,6 +223,7 @@ class ConversationPoller:
             )
             return
         self._last_reinit_time = time.time()
+        self._auth_event("conversation_reinitializing", reason=reason)
         self.log.info(f"触发reinit(原因: {reason})")
         await self.auth_manager.init_all_data()
 
