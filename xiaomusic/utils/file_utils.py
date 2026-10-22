@@ -55,7 +55,8 @@ def traverse_music_directory(
         {目录名: [文件路径列表]}
     """
     result = {}
-    for root, dirs, files in os.walk(directory, followlinks=True):
+    # Do not follow directory symlinks: they can escape the root or form cycles.
+    for root, dirs, files in os.walk(directory, followlinks=False):
         # 忽略排除的目录
         dirs[:] = [d for d in dirs if d not in exclude_dirs]
 

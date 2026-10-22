@@ -4,6 +4,7 @@
 import difflib
 import re
 from collections.abc import AsyncIterator
+from functools import lru_cache
 
 from opencc import OpenCC
 
@@ -62,6 +63,7 @@ def find_key_by_partial_string(dictionary: dict[str, str], partial_key: str) -> 
     return None
 
 
+@lru_cache(maxsize=8192)
 def traditional_to_simple(to_convert: str) -> str:
     """繁体转简体"""
     return cc.convert(to_convert)

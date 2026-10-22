@@ -5,10 +5,10 @@
   "display": "standalone",
   "start_url": "/",
   "short_name": "小爱音箱",
-  "theme_color": "#FFFFFF",
-  "description": "XiaoMusic: 无限听歌，解放小爱音箱!",
+  "theme_color": "#171918",
+  "description": "XiaoMusic · 你的本地媒体库，为小爱音箱而设。",
   "orientation": "natural",
-  "background_color": "#FFFFFF",
+  "background_color": "#171918",
   "prefer_related_applications": false,
   "display_override": [
     "window-controls-overlay"

@@ -1,0 +1,43 @@
+name: Fork verification
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, feat/xiaomusic-agent-v1, 'codex/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build pinned local-media runtime
+        run: docker build --target verification -f deploy/Dockerfile.local-media -t xiaomusic:verify .
+      - name: Isolated backend and contract tests
+        run: >-
+          docker run --rm --network none --entrypoint /app/.venv/bin/python3
+          xiaomusic:verify -m unittest
+          test.test_local_media test.test_local_matching test.test_voice_playback
+          test.test_qrcode_auth test.test_auth_token_sync test.test_conversation_recovery
+          test.test_auth_diagnostics test.test_ui_contract -q
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test runtime
+        run: |
+          npm install --prefix /tmp/xiaomusic-ui-test playwright@1.62.1
+          /tmp/xiaomusic-ui-test/node_modules/.bin/playwright install --with-deps chromium
+      - name: Check generated inventories
+        run: |
+          python3 scripts/audit_ui_routes.py
+          python3 scripts/generate_settings_schema.py
+          git diff --exit-code -- xiaomusic/static/library/ docs/ui-route-coverage.md
+      - name: Browser workflows and responsive checks
+        env:
+          NODE_PATH: /tmp/xiaomusic-ui-test/node_modules
+        run: node test/ui/library.spec.cjs

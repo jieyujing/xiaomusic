@@ -1,0 +1,13 @@
+# Fixed upstream runtime; application source and UI are supplied by this fork.
+FROM hanxi/xiaomusic@sha256:c1428acebba9b3b05f947d727e5325de8b7483eb83b1e159bf8dfbd652b5eddf AS runtime
+COPY xiaomusic/ /app/xiaomusic/
+COPY scripts/ /app/scripts/
+COPY test/test_local_media.py test/test_local_matching.py test/test_voice_playback.py test/test_qrcode_auth.py test/test_auth_token_sync.py test/test_conversation_recovery.py test/test_auth_diagnostics.py test/test_ui_contract.py /app/test/
+WORKDIR /app
+
+# Test-only dependencies do not alter the deployed application runtime.
+FROM runtime AS verification
+RUN /usr/local/bin/python3 -m pip install --no-cache-dir --target /app/test-deps httpx==0.28.1
+ENV PYTHONPATH=/app/test-deps
+
+FROM runtime AS production

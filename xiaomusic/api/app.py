@@ -8,12 +8,14 @@ from typing import TYPE_CHECKING
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
+from starlette.responses import JSONResponse
 
 from xiaomusic import __version__
 from xiaomusic.api.dependencies import (
     AuthStaticFiles,
     reset_http_server,
 )
+from xiaomusic.local_media import blocked_media_request
 
 if TYPE_CHECKING:
     from xiaomusic.xiaomusic import XiaoMusic
@@ -67,6 +69,20 @@ app.add_middleware(
 
 # 添加 GZip 中间件
 app.add_middleware(GZipMiddleware, minimum_size=500)
+
+
+@app.middleware("http")
+async def enforce_local_media(request, call_next):
+    if blocked_media_request(request.url.path):
+        return JSONResponse(
+            {"detail": "Only media under /vol2/1000/music is allowed"}, status_code=403
+        )
+    return await call_next(request)
+
+
+@app.exception_handler(PermissionError)
+async def media_permission_denied(request, exc):
+    return JSONResponse({"detail": str(exc)}, status_code=403)
 
 
 def HttpInit(_xiaomusic: "XiaoMusic"):

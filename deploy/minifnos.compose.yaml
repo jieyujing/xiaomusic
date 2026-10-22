@@ -1,0 +1,38 @@
+services:
+  xiaomusic:
+    image: xiaomusic:local-media
+    container_name: xiaomusic
+    restart: unless-stopped
+    ports:
+      - "192.168.100.99:8090:8090"
+    volumes:
+      - type: bind
+        source: /vol2/1000/music
+        target: /vol2/1000/music
+        read_only: true
+        bind:
+          create_host_path: false
+      # Replace the upstream image's /app/music volume with the same allowed root.
+      - type: bind
+        source: /vol2/1000/music
+        target: /app/music
+        read_only: true
+        bind:
+          create_host_path: false
+      - ./conf:/app/conf
+    environment:
+      TZ: Asia/Shanghai
+      XIAOMUSIC_PORT: "8090"
+      XIAOMUSIC_HOSTNAME: http://192.168.100.99
+      XIAOMUSIC_PUBLIC_PORT: "8090"
+    healthcheck:
+      test: [CMD, /app/.venv/bin/python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

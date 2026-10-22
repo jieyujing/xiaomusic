@@ -25,12 +25,14 @@ from xiaomusic.crontab import Crontab
 from xiaomusic.device_manager import DeviceManager
 from xiaomusic.events import CONFIG_CHANGED, DEVICE_CONFIG_CHANGED, EventBus
 from xiaomusic.file_watcher import FileWatcherManager
+from xiaomusic.local_media import MEDIA_ROOT, require_media_url
 from xiaomusic.music_library import MusicLibrary
 from xiaomusic.online_music import OnlineMusicService
 from xiaomusic.plugin import PluginManager
 from xiaomusic.utils.network_utils import download_plugin_audio, downloadfile
 from xiaomusic.utils.system_utils import deepcopy_data_no_sensitive_info
 from xiaomusic.utils.text_utils import chinese_to_number
+from xiaomusic.voice_playback import is_now_playing_request, local_play_request
 
 
 class XiaoMusic:
@@ -169,8 +171,8 @@ class XiaoMusic:
             self.log.warning("配置文件目录和音乐目录建议设置为不同的目录")
 
     def init_config(self):
-        if not os.path.exists(self.config.music_path):
-            os.makedirs(self.config.music_path)
+        if not MEDIA_ROOT.is_dir():
+            raise RuntimeError("Required music mount /vol2/1000/music is missing")
 
         if not os.path.exists(self.config.download_path):
             os.makedirs(self.config.download_path)
@@ -270,6 +272,23 @@ class XiaoMusic:
     # 匹配命令
     async def do_check_cmd(self, did="", query="", ctrl_panel=True, **kwargs):
         """检查并执行命令（委托给 command_handler）"""
+        if is_now_playing_request(query):
+            device = self.device_manager.devices.get(did)
+            if device is not None:
+                self.log.info("[LOCAL-VOICE] Current track question received")
+                return await device.announce_current_music()
+            return
+        if not ctrl_panel:
+            name = local_play_request(query)
+            if name is not None:
+                device = self.device_manager.devices.get(did)
+                if device is None:
+                    return
+                self.command_handler.last_cmd = query
+                self.log.info("[LOCAL-VOICE] Received media request; taking over locally")
+                if name:
+                    return await device.playlocal(name)
+                return await device.play_random_local()
         return await self.command_handler.do_check_cmd(did, query, ctrl_panel, **kwargs)
 
     # 重置计时器
@@ -305,6 +324,7 @@ class XiaoMusic:
 
     # 播放一个 url
     async def play_url(self, did="", arg1="", **kwargs):
+        require_media_url(arg1)
         self.log.info(f"手动推送链接：{arg1}")
         url = arg1
         return await self.device_manager.devices[did].group_player_play(url)
@@ -444,18 +464,18 @@ class XiaoMusic:
 
     # 口令:在线播放：在线搜索、播放
     async def online_play(self, did="", arg1="", **kwargs):
-        """委托给 online_music_service"""
-        return await self.online_music_service.online_play(did, arg1, **kwargs)
+        """Online playback is disabled in local-only mode"""
+        raise PermissionError('Online playback is disabled in local-only mode')
 
     # 口令：搜索歌单
     async def online_playlist_play(self, did="", arg1="", **kwargs):
-        """委托给 online_music_service"""
-        return await self.online_music_service.online_playlist_play(did, arg1, **kwargs)
+        """Online playback is disabled in local-only mode"""
+        raise PermissionError('Online playback is disabled in local-only mode')
 
     # 口令:播放歌手：在线搜索歌手并存为列表播放
     async def singer_play(self, did="", arg1="", **kwargs):
-        """委托给 online_music_service"""
-        return await self.online_music_service.singer_play(did, arg1, **kwargs)
+        """Online playback is disabled in local-only mode"""
+        raise PermissionError('Online playback is disabled in local-only mode')
 
     # 处理推送的歌单并播放
     async def push_music_list_play(self, did, song_list, list_name):
@@ -728,22 +748,12 @@ class XiaoMusic:
         return device_list
 
     async def debug_play_by_music_url(self, arg1=None):
-        if arg1 is None:
-            arg1 = {}
-        data = arg1
-        device_id = self.config.get_one_device_id()
-        self.log.info(f"debug_play_by_music_url: {data} {device_id}")
-        return await self.auth_manager.mina_service.ubus_request(
-            device_id,
-            "player_play_music",
-            "mediaplayer",
-            data,
-        )
+        """Online playback is disabled in local-only mode"""
+        raise PermissionError('Online playback is disabled in local-only mode')
 
     async def exec(self, did="", arg1=None, **kwargs):
-        self.auth_manager._cur_did = did
-        code = arg1 if arg1 else 'code1("hello")'
-        await self.plugin_manager.execute_plugin(code)
+        """Online playback is disabled in local-only mode"""
+        raise PermissionError('Online playback is disabled in local-only mode')
 
     # 此接口用于插件中获取当前设备
     def get_cur_did(self):

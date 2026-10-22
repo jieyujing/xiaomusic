@@ -234,7 +234,7 @@ class MiJiaAPI:
         os.chmod(self.auth_data_path, 0o600)
         print(f"已保存认证数据到 {self.auth_data_path}")
 
-    def _get_location(self) -> dict:
+    def _get_location(self, force: bool = False) -> dict:
         headers = {
             "User-Agent": self.user_agent,
             "Connection": "keep-alive",
@@ -242,9 +242,9 @@ class MiJiaAPI:
             "Content-Type": "application/x-www-form-urlencoded",
             "Cookie": f"deviceId={self.device_id};"
             f"pass_o={self.pass_o};"
-            f"passToken={self.auth_data.get('passToken', '')};"
-            f"userId={self.auth_data.get('userId', '')};"
-            f"cUserId={self.auth_data.get('cUserId', '')};"
+            f"passToken={'' if force else self.auth_data.get('passToken', '')};"
+            f"userId={'' if force else self.auth_data.get('userId', '')};"
+            f"cUserId={'' if force else self.auth_data.get('cUserId', '')};"
             f"uLocale={self.locale};",
         }
         service_ret = requests.get(self.service_login_url, headers=headers)
@@ -276,9 +276,9 @@ class MiJiaAPI:
         else:
             raise ValueError("刷新Token失败，请重新登录")
 
-    def get_qrcode(self):
+    def get_qrcode(self, force: bool = False):
         # Step 1: 从 serviceLogin 获取登录链接参数
-        location_data = self._get_location()
+        location_data = self._get_location(force=force)
         if (
             location_data.get("code", -1) == 0
             and location_data.get("message", "") == "刷新Token成功"
