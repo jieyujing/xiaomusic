@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build pinned local-media runtime
-        run: docker build -f deploy/Dockerfile.local-media -t xiaomusic:verify .
+        run: docker build --target verification -f deploy/Dockerfile.local-media -t xiaomusic:verify .
       - name: Isolated backend and contract tests
         run: >-
           docker run --rm --network none --entrypoint /app/.venv/bin/python3

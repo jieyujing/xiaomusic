@@ -60,11 +60,12 @@ docker compose up -d --wait
 
 ## 验证
 
-使用与运行服务相同的镜像运行隔离测试，不挂载生产媒体或配置：
+验证阶段沿用生产运行环境并单独安装测试客户端依赖，不挂载生产媒体或配置：
 
 ```sh
+docker build --target verification -f deploy/Dockerfile.local-media -t xiaomusic:verify .
 docker run --rm --network none --entrypoint /app/.venv/bin/python3 \
-  xiaomusic:local-media -m unittest \
+  xiaomusic:verify -m unittest \
   test.test_local_media test.test_local_matching test.test_voice_playback \
   test.test_qrcode_auth test.test_auth_token_sync test.test_conversation_recovery \
   test.test_auth_diagnostics test.test_ui_contract -q
