@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Test-only dependencies do not alter the deployed application runtime.
 FROM runtime AS verification
-RUN python3 -m pip install --no-cache-dir --target /app/test-deps httpx==0.28.1
+RUN /usr/local/bin/python3 -m pip install --no-cache-dir --target /app/test-deps httpx==0.28.1
 ENV PYTHONPATH=/app/test-deps
 
 FROM runtime AS production
