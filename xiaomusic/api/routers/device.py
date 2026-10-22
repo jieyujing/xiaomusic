@@ -18,6 +18,7 @@ from xiaomusic.api.models import (
     DidCmd,
     DidVolume,
 )
+from xiaomusic.local_media import require_media_url
 
 router = APIRouter(dependencies=[Depends(verification)])
 
@@ -101,9 +102,10 @@ async def cmd_status():
 @router.get("/playurl")
 async def playurl(did: str, url: str):
     """播放 URL"""
+    decoded_url = urllib.parse.unquote(url)
+    require_media_url(decoded_url)
     if not xiaomusic.did_exist(did):
         return {"ret": "Did not exist"}
-    decoded_url = urllib.parse.unquote(url)
     log.info(f"playurl did: {did} url: {decoded_url}")
     return await xiaomusic.play_url(did=did, arg1=decoded_url)
 

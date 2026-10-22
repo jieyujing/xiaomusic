@@ -16,6 +16,8 @@ from urllib.parse import parse_qs, urlparse
 
 from xiaomusic.const import SUPPORT_MUSIC_TYPE
 from xiaomusic.events import CONFIG_CHANGED
+from xiaomusic.local_matching import LocalMusicMatcher
+from xiaomusic.local_media import MEDIA_ROOT, require_media_file
 from xiaomusic.utils.file_utils import (
     clean_old_caches,
     is_cache_valid,
@@ -33,7 +35,12 @@ from xiaomusic.utils.music_utils import (
 )
 from xiaomusic.utils.network_utils import MusicUrlCache
 from xiaomusic.utils.system_utils import try_add_access_control_param
-from xiaomusic.utils.text_utils import custom_sort_key, find_best_match, fuzzyfinder
+from xiaomusic.utils.text_utils import (
+    custom_sort_key,
+    find_best_match,
+    fuzzyfinder,
+    traditional_to_simple,
+)
 
 # 短 token 缓存，避免长 URL 超出小爱音箱固件限制
 _proxy_token_cache: dict = {}  # token -> (origin_url, is_radio)
@@ -89,6 +96,7 @@ class MusicLibrary:
 
         # 搜索索引
         self._extra_index_search = {}  # 额外搜索索引 {filepath: name}
+        self._local_matcher = None
 
         # 标签管理
         self.all_music_tags = {}  # 音乐标签缓存
@@ -110,7 +118,7 @@ class MusicLibrary:
         # 扫描本地音乐目录
         exclude_dirs_set = self.config.get_exclude_dirs_set()
         local_musics = traverse_music_directory(
-            self.config.music_path,
+            str(MEDIA_ROOT),
             depth=self.config.music_path_depth,
             exclude_dirs=exclude_dirs_set,
             support_extension=SUPPORT_MUSIC_TYPE,
@@ -133,6 +141,10 @@ class MusicLibrary:
                 all_music_by_dir[dir_name] = {}
 
             for file in files:
+                try:
+                    require_media_file(file)
+                except PermissionError:
+                    continue
                 # 歌曲名字相同会覆盖
                 filename = os.path.basename(file)
                 (name, _) = os.path.splitext(filename)
@@ -193,53 +205,28 @@ class MusicLibrary:
             # 如果不是 radio，则增加索引
             if not self.is_web_radio_music(name):
                 self._extra_index_search[filepath] = name
+                # Move normalization cost to library refresh, before a voice
+                # request needs to search these same filenames and paths.
+                traditional_to_simple(name.lower())
+                traditional_to_simple(filepath.lower())
+
+        aliases = {}
+        alias_path = os.path.join(self.config.conf_path, "music_aliases.json")
+        try:
+            with open(alias_path, encoding="utf-8") as source:
+                aliases = json.load(source)
+        except FileNotFoundError:
+            pass
+        except (OSError, ValueError):
+            self.log.warning("Local music aliases could not be loaded; using filename aliases")
+        self._local_matcher = LocalMusicMatcher(self.all_music, aliases)
 
         # all_music 更新，重建 tag（仅在事件循环启动后才会执行）
         self.try_gen_all_music_tag()
 
     def _append_music_list(self):
-        """给歌单里补充网络歌单"""
-        if not self.config.music_list_json:
-            return
-
-        self._all_radio = {}
-        self._web_music_api = {}
-        music_list = json.loads(self.config.music_list_json)
-
-        try:
-            for item in music_list:
-                list_name = item.get("name")
-                musics = item.get("musics")
-                if (not list_name) or (not musics):
-                    continue
-
-                one_music_list = []
-                for music in musics:
-                    name = music.get("name")
-                    url = music.get("url")
-                    music_type = music.get("type")
-                    if (not name) or (not url):
-                        continue
-
-                    self.all_music[name] = url
-                    # 存入带歌单名的专属链接，防止被同名覆盖！
-                    self.playlist_music_urls[f"{list_name}::{name}"] = url
-                    one_music_list.append(name)
-
-                    # 处理电台列表
-                    if music_type == "radio":
-                        self._all_radio[name] = url
-                    if music.get("api"):
-                        self._web_music_api[name] = music
-
-                self.log.debug(one_music_list)
-                # 歌曲名字相同会覆盖
-                self.music_list[list_name] = one_music_list
-
-            if self._all_radio:
-                self.music_list["所有电台"] = list(self._all_radio.keys())
-        except Exception as e:
-            self.log.exception(f"Execption {e}")
+        """Network playlists are disabled in local-only mode."""
+        return
 
     def refresh_custom_play_list(self):
         """刷新自定义歌单"""
@@ -586,35 +573,18 @@ class MusicLibrary:
             self.log.debug("没开启模糊匹配")
             return []
 
-        all_music_list = list(self.all_music.keys())
-        real_names = find_best_match(
-            name,
-            all_music_list,
-            cutoff=self.config.fuzzy_match_cutoff,
-            n=n,
-            extra_search_index=self._extra_index_search,
-        )
+        if name in self.all_music:
+            return [name]
+
+        matcher = getattr(self, "_local_matcher", None)
+        if matcher is None:
+            matcher = self._local_matcher = LocalMusicMatcher(self.all_music)
+        real_names = matcher.find(name, n=n, cutoff=self.config.fuzzy_match_cutoff)
         if not real_names:
             self.log.info(f"没找到歌曲【{name}】")
             return []
         self.log.info(f"根据【{name}】找到歌曲【{real_names}】")
-        if name in real_names:
-            return [name]
-
-        # 音乐不在查找结果同时n大于1, 模糊匹配模式，扩大范围再找，最后按文件名自然排序
-        if n > 1:
-            real_names = find_best_match(
-                name,
-                all_music_list,
-                cutoff=self.config.fuzzy_match_cutoff,
-                n=n * 2,
-                extra_search_index=self._extra_index_search,
-            )
-            real_names.sort(key=custom_sort_key)
-        if not real_names:
-            self.log.info(f"没找到歌曲【{name}】")
-            return []
-        return real_names[:n]
+        return real_names
 
     def find_real_music_list_name(self, list_name):
         """模糊搜索播放列表名称
@@ -1182,9 +1152,10 @@ class MusicLibrary:
             tuple: (播放地址, 原始地址) - 网络音乐时可能有原始地址
         """
         self.log.info(f"get_music_url name:{name}")
-        if self.is_web_music(name):
-            return await self._get_web_music_url(name, playlist_name)
-        return self._get_local_music_url(name), None
+        try:
+            return self._get_local_music_url(name), None
+        except PermissionError:
+            return "", None
 
     # 接收 playlist_name
     async def _get_web_music_url(self, name, playlist_name=None):
@@ -1370,14 +1341,8 @@ class MusicLibrary:
         Returns:
             str: 文件访问URL
         """
-        filename = filepath
-
-        # 处理文件路径
-        if filename.startswith(self.config.music_path):
-            filename = filename[len(self.config.music_path) :]
-        filename = filename.replace("\\", "/")
-        if filename.startswith("/"):
-            filename = filename[1:]
+        source = require_media_file(filepath)
+        filename = source.relative_to(MEDIA_ROOT.resolve(strict=True)).as_posix()
 
         self.log.info(f"_get_file_url filepath:{filepath}, filename:{filename}")
 

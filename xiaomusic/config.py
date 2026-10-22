@@ -14,6 +14,7 @@ from xiaomusic.const import (
     PLAY_TYPE_SEQ,
     PLAY_TYPE_SIN,
 )
+from xiaomusic.local_media import MEDIA_ORIGIN, MEDIA_ROOT
 from xiaomusic.utils.system_utils import validate_proxy
 
 
@@ -268,6 +269,22 @@ class Config:
                 self.key_match_order.append(k)
 
     def init(self):
+        # Reapply after every settings load/update; the UI cannot widen this root.
+        self.music_path = str(MEDIA_ROOT)
+        self.hostname, port = MEDIA_ORIGIN.rsplit(":", 1)
+        self.port = self.public_port = int(port)
+        self.disable_download = True
+        self.enable_force_stop = True
+        self.enable_multi_result_selection = False
+        self.multi_result_action = "random"
+        self.music_list_url = ""
+        self.music_list_json = ""
+        self.remove_id3tag = False
+        self.convert_to_mp3 = False
+        self.edge_tts_voice = "disable"
+        self.temp_path = os.path.join(self.conf_path, "tmp")
+        self.download_path = os.path.join(self.conf_path, "downloads")
+        self.cache_dir = os.path.join(self.conf_path, "cache")
         self.key_match_order = default_key_match_order()
         self.key_word_dict = default_key_word_dict()
         self.append_keyword(self.keywords_playlocal, "playlocal")

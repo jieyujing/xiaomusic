@@ -19,7 +19,6 @@ from xiaomusic.config import Device
 if TYPE_CHECKING:
     from xiaomusic.xiaomusic import XiaoMusic
 from xiaomusic.const import (
-    NEED_USE_PLAY_MUSIC_API,
     PLAY_TYPE_ALL,
     PLAY_TYPE_ONE,
     PLAY_TYPE_RND,
@@ -28,7 +27,7 @@ from xiaomusic.const import (
     TTS_COMMAND,
 )
 from xiaomusic.events import DEVICE_CONFIG_CHANGED
-from xiaomusic.utils.file_utils import chmodfile
+from xiaomusic.local_media import require_media_file, require_media_url
 from xiaomusic.utils.text_utils import (
     custom_sort_key,
     list2str,
@@ -259,36 +258,32 @@ class XiaoMusicDevice:
         return await self._play(name=name, search_key=search_key)
 
     async def _check_and_download_music(self, name, search_key, allow_download):
-        """检查本地歌曲是否存在，如果不存在则根据参数决定是否下载
+        """Local-only existence check; this deployment never downloads a miss."""
+        return self.xiaomusic.music_library.is_music_exist(name)
 
-        Args:
-            name: 歌曲名称
-            search_key: 搜索关键词
-            allow_download: 是否允许下载
-
-        Returns:
-            bool: True表示歌曲存在或下载成功，False表示歌曲不存在且不允许下载
-        """
-        if self.xiaomusic.music_library.is_music_exist(name):
-            return True
-
-        self.log.info(f"本地不存在歌曲{name}")
-
-        # 根据 allow_download 参数决定行为
-        if not allow_download:
-            # playlocal 的行为：不下载，直接提示
-            await self.do_tts(f"本地不存在歌曲{name}")
+    async def play_random_local(self):
+        """Choose only a currently authorized file from the complete local library."""
+        self._last_cmd = "playlocal"
+        choices = []
+        for name, path in self.xiaomusic.music_library.all_music.items():
+            try:
+                require_media_file(path)
+            except (PermissionError, TypeError):
+                continue
+            choices.append(name)
+        self._pending_selection = None
+        self._pending_selection_count = 0
+        if not choices:
+            await self.cancel_group_next_timer()
+            await self.group_force_stop_xiaoai()
+            self.is_playing = False
+            self.log.warning("[LOCAL-VOICE] No authorized local media; native playback stopped")
             return False
-
-        # _play 的行为：检查配置决定是否下载
-        if self.config.disable_download:
-            await self.do_tts(f"本地不存在歌曲{name}")
-            return False
-
-        # 下载歌曲
-        await self.download(search_key, name)
-        # 把文件插入到播放列表里
-        await self.add_download_music(name)
+        name = random.choice(choices)
+        self.device.cur_playlist = "全部"
+        self.update_playlist()
+        self.log.info("[LOCAL-VOICE] Local miss; random fallback selected from %d files", len(choices))
+        await self._playmusic(name)
         return True
 
     async def _play_internal(self, name="", search_key="", allow_download=True):
@@ -393,6 +388,7 @@ class XiaoMusicDevice:
             if not await self._check_and_download_music(
                 name, search_key, allow_download
             ):
+                await self.play_random_local()
                 return
 
             # 播放歌曲
@@ -584,11 +580,13 @@ class XiaoMusicDevice:
                 return
 
         # 4. 真正安全的下发播放阶段
-        await self.group_force_stop_xiaoai()
         self.log.info(f"发送指令给小爱，开始播放: {url}")
 
         results = await self.group_player_play(url, name)
         if all(ele is None for ele in results):
+            # REPLACE_ALL normally interrupts native playback itself. Only pay
+            # for the separate stop roundtrips when replacement fails.
+            await self.group_force_stop_xiaoai()
             self._play_failed_cnt = getattr(self, "_play_failed_cnt", 0) + 1
             self.log.info(f"播放指令发送失败. 连续失败次数: {self._play_failed_cnt}")
             await asyncio.sleep(1)
@@ -690,6 +688,26 @@ class XiaoMusicDevice:
         self.log.info(f"do_tts ok. cur_music:{self.get_cur_music()}")
         await self.check_replay()
 
+    async def announce_current_music(self):
+        """Answer from local state through native speech without restarting music."""
+        name = self.get_cur_music()
+        active = self.is_playing and bool(name)
+        if active:
+            try:
+                require_media_file(self.xiaomusic.music_library.all_music.get(name))
+            except (PermissionError, TypeError):
+                active = False
+        text = f"当前本地播放的是，{name}。" if active else "当前没有在播放本地音乐。"
+        try:
+            # This explicit status answer is separate from disabled generated
+            # audio/TTS and uses the already authenticated speaker service.
+            await self.auth_manager.mina_service.text_to_speech(self.device_id, text)
+            self.log.info("[LOCAL-VOICE] Current local track announcement submitted")
+            return True
+        except Exception as exc:
+            self.log.warning("Current track announcement failed: %s", type(exc).__name__)
+            return False
+
     async def force_stop_xiaoai(self, device_id):
         """强制停止小爱播放"""
         try:
@@ -697,9 +715,13 @@ class XiaoMusicDevice:
             self.log.info(
                 f"force_stop_xiaoai player_pause device_id:{device_id} ret:{ret}"
             )
+        except Exception as e:
+            self.log.warning("Native pause failed: %s", type(e).__name__)
+        # A failed pause must not prevent the stronger stop command.
+        try:
             await self.stop_if_xiaoai_is_playing(device_id)
         except Exception as e:
-            self.log.warning(f"Execption {e}")
+            self.log.warning("Native stop failed: %s", type(e).__name__)
 
     async def get_if_xiaoai_is_playing(self):
         """检查小爱是否正在播放"""
@@ -716,7 +738,7 @@ class XiaoMusicDevice:
 
     async def stop_if_xiaoai_is_playing(self, device_id):
         """如果小爱正在播放则停止"""
-        is_playing = await self.get_if_xiaoai_is_playing()
+        is_playing = False if self.config.enable_force_stop else await self.get_if_xiaoai_is_playing()
         if is_playing or self.config.enable_force_stop:
             # stop it
             ret = await self.auth_manager.mina_service.player_stop(device_id)
@@ -739,48 +761,8 @@ class XiaoMusicDevice:
         return True
 
     async def download(self, search_key, name):
-        """下载歌曲"""
-        if self._download_proc:
-            try:
-                self._download_proc.kill()
-            except ProcessLookupError:
-                pass
-
-        sbp_args = (
-            "yt-dlp",
-            f"{self.config.search_prefix}{search_key}",
-            "-x",
-            "--audio-format",
-            "mp3",
-            "--audio-quality",
-            "0",
-            "--paths",
-            self.config.download_path,
-            "-o",
-            f"{name}.mp3",
-            "--ffmpeg-location",
-            f"{self.ffmpeg_location}",
-            "--no-playlist",
-        )
-
-        if self.config.proxy:
-            sbp_args += ("--proxy", f"{self.config.proxy}")
-
-        if self.config.enable_yt_dlp_cookies:
-            sbp_args += ("--cookies", f"{self.config.yt_dlp_cookies_path}")
-
-        if self.config.loudnorm:
-            sbp_args += ("--postprocessor-args", f"-af {self.config.loudnorm}")
-
-        cmd = " ".join(sbp_args)
-        self.log.info(f"download cmd: {cmd}")
-        self._download_proc = await asyncio.create_subprocess_exec(*sbp_args)
-        await self.do_tts(f"正在下载歌曲{search_key}")
-        self.log.info(f"正在下载中 {search_key} {name}")
-        await self._download_proc.wait()
-        # 下载完成后，修改文件权限
-        file_path = os.path.join(self.config.download_path, f"{name}.mp3")
-        chmodfile(file_path)
+        """Downloads are disabled in local-only mode"""
+        raise PermissionError('Downloads are disabled in local-only mode')
 
     async def check_replay(self):
         """检查是否需要继续播放被打断的歌曲"""
@@ -988,30 +970,13 @@ class XiaoMusicDevice:
 
     async def play_one_url(self, device_id, url, name):
         """在单个设备上播放URL"""
+        require_media_url(url)
         ret = None
         try:
-            audio_id = await self._get_audio_id(name)
-            if self.config.continue_play:
-                ret = await self.auth_manager.mina_service.play_by_music_url(
-                    device_id, url, _type=1, audio_id=audio_id
-                )
-                self.log.info(
-                    f"play_one_url continue_play device_id:{device_id} ret:{ret} url:{url} audio_id:{audio_id}"
-                )
-            elif self.config.use_music_api or (
-                self.hardware in NEED_USE_PLAY_MUSIC_API
-            ):
-                ret = await self.auth_manager.mina_service.play_by_music_url(
-                    device_id, url, audio_id=audio_id
-                )
-                self.log.info(
-                    f"play_one_url play_by_music_url device_id:{device_id} ret:{ret} url:{url} audio_id:{audio_id}"
-                )
-            else:
-                ret = await self.auth_manager.mina_service.play_by_url(device_id, url)
-                self.log.info(
-                    f"play_one_url play_by_url device_id:{device_id} ret:{ret} url:{url}"
-                )
+            # Use the same REPLACE_ALL request verified on this LX06. Keep the
+            # SDK's fixed metadata defaults: no cloud song search or native queue.
+            ret = await self.auth_manager.mina_service.play_by_music_url(device_id, url)
+            self.log.info("[LOCAL-VOICE] Local queue replacement submitted")
         except Exception as e:
             self.log.exception(f"Execption {e}")
         return ret
