@@ -1,0 +1,512 @@
+[
+  {
+    "route": "DELETE /api/js-plugins/{plugin_name}/uninstall",
+    "status": "active",
+    "entry": "管理 / 插件"
+  },
+  {
+    "route": "GET /",
+    "status": "internal",
+    "entry": "页面 / 文档 / 状态推送 / 资源传输，无独立按钮"
+  },
+  {
+    "route": "GET /api/advanced-config/load",
+    "status": "active",
+    "entry": "管理 / 高级（只读状态）"
+  },
+  {
+    "route": "GET /api/back-conf/load",
+    "status": "active",
+    "entry": "管理 / 高级（只读状态）"
+  },
+  {
+    "route": "GET /api/box-play-platform/load",
+    "status": "active",
+    "entry": "管理 / 高级（只读状态）"
+  },
+  {
+    "route": "GET /api/debug/simulate_token_expire",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "GET /api/get_qrcode",
+    "status": "active",
+    "entry": "设置"
+  },
+  {
+    "route": "GET /api/js-plugins",
+    "status": "active",
+    "entry": "管理 / 插件"
+  },
+  {
+    "route": "GET /api/lxServer/convertPlaylist",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "GET /api/lxServer/load",
+    "status": "active",
+    "entry": "管理 / 高级（只读状态）"
+  },
+  {
+    "route": "GET /api/lxServer/pullPlaylist",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "GET /api/lxServer/test",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "GET /api/lxServer/userList",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "GET /api/password/check",
+    "status": "active",
+    "entry": "管理 / 插件"
+  },
+  {
+    "route": "GET /api/platforms",
+    "status": "active",
+    "entry": "管理 / 高级（只读状态）"
+  },
+  {
+    "route": "GET /api/plugin-source/load",
+    "status": "active",
+    "entry": "管理 / 高级（只读状态）"
+  },
+  {
+    "route": "GET /api/proxy/plugin-url",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "GET /api/proxy/real-url",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "GET /api/search/online",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "GET /api/search/online_playlist",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "GET /api/search/online_playlist_detail",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "GET /cmdstatus",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "GET /curplaylist",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "GET /device_list",
+    "status": "active",
+    "entry": "设置"
+  },
+  {
+    "route": "GET /docs",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "GET /download_progress",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "GET /downloadlog",
+    "status": "active",
+    "entry": "设置"
+  },
+  {
+    "route": "GET /generate_ws_token",
+    "status": "internal",
+    "entry": "页面 / 文档 / 状态推送 / 资源传输，无独立按钮"
+  },
+  {
+    "route": "GET /getplayerstatus",
+    "status": "active",
+    "entry": "管理 / 设备"
+  },
+  {
+    "route": "GET /getsetting",
+    "status": "active",
+    "entry": "设置"
+  },
+  {
+    "route": "GET /getversion",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "GET /getvolume",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "GET /latestversion",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "GET /music/{file_path:path}",
+    "status": "internal",
+    "entry": "页面 / 文档 / 状态推送 / 资源传输，无独立按钮"
+  },
+  {
+    "route": "GET /musicinfo",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "GET /musicinfos",
+    "status": "equivalent",
+    "entry": "批量歌曲详情；功能使用 /musicinfo 单曲读取覆盖，无单独批量 API 操作台"
+  },
+  {
+    "route": "GET /musiclist",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "GET /openapi.json",
+    "status": "internal",
+    "entry": "页面 / 文档 / 状态推送 / 资源传输，无独立按钮"
+  },
+  {
+    "route": "GET /picture/{file_path:path}",
+    "status": "internal",
+    "entry": "页面 / 文档 / 状态推送 / 资源传输，无独立按钮"
+  },
+  {
+    "route": "GET /playingmusic",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "GET /playlistmusics",
+    "status": "active",
+    "entry": "管理 / 歌单"
+  },
+  {
+    "route": "GET /playlistnames",
+    "status": "active",
+    "entry": "管理 / 歌单"
+  },
+  {
+    "route": "GET /playtts",
+    "status": "active",
+    "entry": "管理 / 设备"
+  },
+  {
+    "route": "GET /playurl",
+    "status": "active",
+    "entry": "管理 / 设备"
+  },
+  {
+    "route": "GET /proxy",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "GET /proxy/{type}",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "GET /redoc",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "GET /searchmusic",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "OPTIONS /music/{file_path:path}",
+    "status": "internal",
+    "entry": "页面 / 文档 / 状态推送 / 资源传输，无独立按钮"
+  },
+  {
+    "route": "POST /api/advanced-config/update",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/back-conf/update",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/box-play-platform/update",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/device/pushList",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /api/device/pushUrl",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /api/file/cleantempdir",
+    "status": "active",
+    "entry": "设置"
+  },
+  {
+    "route": "POST /api/js-plugins/import-online",
+    "status": "restricted",
+    "entry": "管理 / 插件；仅本地模式禁用安装与启用"
+  },
+  {
+    "route": "POST /api/js-plugins/upload",
+    "status": "restricted",
+    "entry": "管理 / 插件；仅本地模式禁用安装与启用"
+  },
+  {
+    "route": "POST /api/lxServer/clearXiaomusicPlaylists",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/lxServer/deletePlaylists",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/lxServer/toggle",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/lxServer/updateAuth",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/lxServer/updatePlatforms",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/lxServer/updateUrl",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/music/refreshlist",
+    "status": "active",
+    "entry": "设置"
+  },
+  {
+    "route": "POST /api/password/verify",
+    "status": "active",
+    "entry": "管理 / 插件"
+  },
+  {
+    "route": "POST /api/play/getLyric",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /api/play/getMediaSource",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /api/plugin-source/refresh",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/plugin-source/updateUrl",
+    "status": "restricted",
+    "entry": "管理 / 高级；在线服务配置与同步禁用"
+  },
+  {
+    "route": "POST /api/system/modifiysetting",
+    "status": "active",
+    "entry": "设置"
+  },
+  {
+    "route": "POST /clear_completed_tasks",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "POST /cmd",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "POST /debug_play_by_music_url",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /delete_download_task",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "POST /delmusic",
+    "status": "active",
+    "entry": "管理 / 媒体"
+  },
+  {
+    "route": "POST /device/stop",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "POST /downloadjson",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /downloadonemusic",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /downloadplaylist",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /musicinfos",
+    "status": "equivalent",
+    "entry": "批量歌曲详情；功能使用 /musicinfo 单曲读取覆盖，无单独批量 API 操作台"
+  },
+  {
+    "route": "POST /pause_download",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "POST /playlistadd",
+    "status": "active",
+    "entry": "管理 / 歌单"
+  },
+  {
+    "route": "POST /playlistaddmusic",
+    "status": "active",
+    "entry": "管理 / 歌单"
+  },
+  {
+    "route": "POST /playlistdel",
+    "status": "active",
+    "entry": "管理 / 歌单"
+  },
+  {
+    "route": "POST /playlistdelmusic",
+    "status": "active",
+    "entry": "管理 / 歌单"
+  },
+  {
+    "route": "POST /playlistupdatemusic",
+    "status": "active",
+    "entry": "管理 / 歌单"
+  },
+  {
+    "route": "POST /playlistupdatename",
+    "status": "active",
+    "entry": "管理 / 歌单"
+  },
+  {
+    "route": "POST /playmusic",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "POST /playmusiclist",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "POST /refreshmusictag",
+    "status": "active",
+    "entry": "设置"
+  },
+  {
+    "route": "POST /restart_download",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /resume_download",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /savesetting",
+    "status": "active",
+    "entry": "设置"
+  },
+  {
+    "route": "POST /setmusictag",
+    "status": "active",
+    "entry": "管理 / 媒体"
+  },
+  {
+    "route": "POST /setvolume",
+    "status": "active",
+    "entry": "媒体库 / 播放器 / 播放列表"
+  },
+  {
+    "route": "POST /stop_download",
+    "status": "active",
+    "entry": "管理 / 系统"
+  },
+  {
+    "route": "POST /updateversion",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /uploadmusic",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "POST /uploadytdlpcookie",
+    "status": "restricted",
+    "entry": "管理 / 系统 / 在线媒体功能；仅本地模式禁用"
+  },
+  {
+    "route": "PUT /api/js-plugins/{plugin_name}/disable",
+    "status": "active",
+    "entry": "管理 / 插件"
+  },
+  {
+    "route": "PUT /api/js-plugins/{plugin_name}/enable",
+    "status": "restricted",
+    "entry": "管理 / 插件；仅本地模式禁用安装与启用"
+  },
+  {
+    "route": "WEBSOCKET /ws/playingmusic",
+    "status": "internal",
+    "entry": "页面 / 文档 / 状态推送 / 资源传输，无独立按钮"
+  }
+]

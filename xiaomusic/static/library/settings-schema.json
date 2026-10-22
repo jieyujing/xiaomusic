@@ -1,0 +1,919 @@
+{
+  "source": "static/default/setting.html",
+  "groups": [
+    {
+      "key": "account",
+      "label": "账号与连接"
+    },
+    {
+      "key": "filepath",
+      "label": "文件路径"
+    },
+    {
+      "key": "filewatch",
+      "label": "文件监控"
+    },
+    {
+      "key": "playback",
+      "label": "播放控制"
+    },
+    {
+      "key": "search",
+      "label": "搜索匹配"
+    },
+    {
+      "key": "audio",
+      "label": "音频处理"
+    },
+    {
+      "key": "tts",
+      "label": "语音TTS"
+    },
+    {
+      "key": "voicecmd",
+      "label": "语音命令"
+    },
+    {
+      "key": "network",
+      "label": "网络下载"
+    },
+    {
+      "key": "device",
+      "label": "设备对话"
+    },
+    {
+      "key": "playlist",
+      "label": "歌单定时"
+    },
+    {
+      "key": "security",
+      "label": "安全访问"
+    },
+    {
+      "key": "other",
+      "label": "其他"
+    }
+  ],
+  "fields": [
+    {
+      "key": "account",
+      "label": "小米账号",
+      "group": "account",
+      "type": "text",
+      "options": [],
+      "placeholder": "填写小米登录账号"
+    },
+    {
+      "key": "password",
+      "label": "小米密码",
+      "group": "account",
+      "type": "password",
+      "options": [],
+      "placeholder": "填写小米登录密码"
+    },
+    {
+      "key": "cookie",
+      "label": "Cookie",
+      "group": "account",
+      "type": "text",
+      "options": [],
+      "placeholder": "粘贴完整的 Cookie 字符串"
+    },
+    {
+      "key": "hostname",
+      "label": "NAS的IP或域名",
+      "group": "account",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "public_port",
+      "label": "本地端口",
+      "group": "account",
+      "type": "number",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "music_path",
+      "label": "音乐目录",
+      "group": "filepath",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "download_path",
+      "label": "音乐下载目录(必须是music的子目录)",
+      "group": "filepath",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "conf_path",
+      "label": "配置文件目录",
+      "group": "filepath",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "cache_dir",
+      "label": "缓存文件目录",
+      "group": "filepath",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "cache_max_size_mb",
+      "label": "在线歌曲缓存容量(MB, 0为不缓存)",
+      "group": "filepath",
+      "type": "number",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "temp_path",
+      "label": "临时文件目录",
+      "group": "filepath",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "ffmpeg_location",
+      "label": "ffmpeg路径",
+      "group": "filepath",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "enable_file_watch",
+      "label": "启用目录监控(自动刷新音乐列表)",
+      "group": "filewatch",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "开启"
+        },
+        {
+          "value": "false",
+          "label": "关闭"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "file_watch_debounce",
+      "label": "刷新列表延迟时间(秒)",
+      "group": "filewatch",
+      "type": "number",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "enable_auto_clean_temp",
+      "label": "启用定时清理临时文件(每日凌晨3点)",
+      "group": "filewatch",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "开启"
+        },
+        {
+          "value": "false",
+          "label": "关闭"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "exclude_dirs",
+      "label": "忽略目录(逗号分割)",
+      "group": "filewatch",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "ignore_tag_dirs",
+      "label": "不扫描标签信息目录(逗号分割)",
+      "group": "filewatch",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "music_path_depth",
+      "label": "目录深度",
+      "group": "filewatch",
+      "type": "number",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "recently_added_playlist_len",
+      "label": "最近新增的歌曲数量",
+      "group": "filewatch",
+      "type": "number",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "delay_sec",
+      "label": "下一首歌延迟播放秒数(支持负数)",
+      "group": "playback",
+      "type": "number",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "use_music_api",
+      "label": "型号兼容模式",
+      "group": "playback",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "continue_play",
+      "label": "启用触屏版歌曲封面及歌词，启用继续播放(可能导致兼容性问题)",
+      "group": "playback",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "use_music_audio_id",
+      "label": "触屏版默认封面选择(触屏版歌曲封面设为true，才能选择)",
+      "group": "playback",
+      "type": "select",
+      "options": [
+        {
+          "value": "436490277987655",
+          "label": "星河雀影"
+        },
+        {
+          "value": "2284848025338642973",
+          "label": "鲸落"
+        },
+        {
+          "value": "3032977774822294038",
+          "label": "仲夏涟漪"
+        },
+        {
+          "value": "3573885250148762567",
+          "label": "星辰妙漫"
+        },
+        {
+          "value": "2821554561643067278",
+          "label": "所念皆星河"
+        },
+        {
+          "value": "1949968393125757902",
+          "label": "柳岸泊舟"
+        },
+        {
+          "value": "1963040443250771008",
+          "label": "花冠少女"
+        },
+        {
+          "value": "703059981413384476",
+          "label": "月夜"
+        },
+        {
+          "value": "2182123779048604035",
+          "label": "橘子海"
+        },
+        {
+          "value": "1299407089048748519",
+          "label": "拾音者"
+        },
+        {
+          "value": "2234266363446166675",
+          "label": "唱片"
+        },
+        {
+          "value": "224322594261696542",
+          "label": "音符"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "use_music_id",
+      "label": "触屏版显示歌曲分段ID",
+      "group": "playback",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "active_cmd",
+      "label": "允许唤醒的命令",
+      "group": "playback",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "fuzzy_match_cutoff",
+      "label": "模糊匹配阈值(0.1~0.9)",
+      "group": "search",
+      "type": "number",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "enable_fuzzy_match",
+      "label": "开启模糊搜索",
+      "group": "search",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "enable_multi_result_selection",
+      "label": "开启多结果选择功能",
+      "group": "search",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "开启"
+        },
+        {
+          "value": "false",
+          "label": "关闭"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "multi_result_action",
+      "label": "多结果处理",
+      "group": "search",
+      "type": "select",
+      "options": [
+        {
+          "value": "random",
+          "label": "随机播放"
+        },
+        {
+          "value": "first",
+          "label": "从第一首开始播放"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "get_duration_type",
+      "label": "获取时长方式",
+      "group": "audio",
+      "type": "select",
+      "options": [
+        {
+          "value": "ffprobe",
+          "label": "ffprobe"
+        },
+        {
+          "value": "mutagen",
+          "label": "mutagen"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "loudnorm",
+      "label": "均衡歌曲音量大小(loudnorm滤镜)",
+      "group": "audio",
+      "type": "text",
+      "options": [],
+      "placeholder": "loudnorm=I=-14:TP=-1.5:LRA=6"
+    },
+    {
+      "key": "remove_id3tag",
+      "label": "去除MP3 ID3v2和填充",
+      "group": "audio",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "convert_to_mp3",
+      "label": "转换为MP3",
+      "group": "audio",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "enable_save_tag",
+      "label": "启用ID3标签写入文件",
+      "group": "audio",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "edge_tts_voice",
+      "label": "Edge-TTS 语音角色",
+      "group": "tts",
+      "type": "select",
+      "options": [
+        {
+          "value": "disable",
+          "label": "不使用(默认)"
+        },
+        {
+          "value": "zh-CN-XiaoxiaoNeural",
+          "label": "晓晓 (女声,温柔)"
+        },
+        {
+          "value": "zh-CN-XiaoyiNeural",
+          "label": "晓伊 (女声,活泼)"
+        },
+        {
+          "value": "zh-CN-YunjianNeural",
+          "label": "云健 (男声,成熟)"
+        },
+        {
+          "value": "zh-CN-YunxiNeural",
+          "label": "云希 (男声,阳光)"
+        },
+        {
+          "value": "zh-CN-YunxiaNeural",
+          "label": "云夏 (男声,少年)"
+        },
+        {
+          "value": "zh-CN-YunyangNeural",
+          "label": "云扬 (男声,新闻)"
+        },
+        {
+          "value": "zh-CN-liaoning-XiaobeiNeural",
+          "label": "晓北 (女声,东北)"
+        },
+        {
+          "value": "zh-CN-shaanxi-XiaoniNeural",
+          "label": "晓妮 (女声,陕西)"
+        },
+        {
+          "value": "zh-HK-HiuGaaiNeural",
+          "label": "曉佳 (女声,粤语)"
+        },
+        {
+          "value": "zh-HK-HiuMaanNeural",
+          "label": "曉曼 (女声,粤语)"
+        },
+        {
+          "value": "zh-HK-WanLungNeural",
+          "label": "雲龍 (男声,粤语)"
+        },
+        {
+          "value": "zh-TW-HsiaoChenNeural",
+          "label": "曉臻 (女声,台湾)"
+        },
+        {
+          "value": "zh-TW-YunJheNeural",
+          "label": "雲哲 (男声,台湾)"
+        },
+        {
+          "value": "zh-TW-HsiaoYuNeural",
+          "label": "曉雨 (女声,台湾)"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "stop_tts_msg",
+      "label": "停止提示音 (触屏音箱建议留空)",
+      "group": "tts",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "play_type_one_tts_msg",
+      "label": "单曲循环提示音",
+      "group": "tts",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "play_type_all_tts_msg",
+      "label": "全部循环提示音",
+      "group": "tts",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "play_type_rnd_tts_msg",
+      "label": "随机播放提示音",
+      "group": "tts",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "play_type_sin_tts_msg",
+      "label": "单曲播放提示音",
+      "group": "tts",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "play_type_seq_tts_msg",
+      "label": "顺序播放提示音",
+      "group": "tts",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "search_prompt_audio",
+      "label": "搜索成功，语音提示",
+      "group": "tts",
+      "type": "select",
+      "options": [
+        {
+          "value": "xiaomusic_ok.mp3",
+          "label": "xiaomusic_ok.mp3 (\"小Music收到\")"
+        },
+        {
+          "value": "silence.mp3",
+          "label": "silence.mp3 (静默)"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "keywords_playlocal",
+      "label": "播放本地歌曲口令",
+      "group": "voicecmd",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "keywords_play",
+      "label": "播放歌曲口令",
+      "group": "voicecmd",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "keywords_playlist",
+      "label": "播放列表口令",
+      "group": "voicecmd",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "keywords_stop",
+      "label": "停止口令",
+      "group": "voicecmd",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "keywords_online_play",
+      "label": "在线播放口令(在线搜索接口或插件)",
+      "group": "voicecmd",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "keywords_online_playlist_play",
+      "label": "在线搜索歌单口令(在线搜索接口或插件)",
+      "group": "voicecmd",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "keywords_singer_play",
+      "label": "播放歌手口令(会搜索歌手并创建歌单)",
+      "group": "voicecmd",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "enable_cmd_del_music",
+      "label": "开启语音删除歌曲",
+      "group": "voicecmd",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "search_prefix",
+      "label": "XIAOMUSIC_SEARCH(歌曲下载方式)",
+      "group": "network",
+      "type": "select",
+      "options": [
+        {
+          "value": "bilisearch:",
+          "label": "bilisearch:"
+        },
+        {
+          "value": "ytsearch:",
+          "label": "ytsearch:"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "proxy",
+      "label": "XIAOMUSIC_PROXY(ytsearch需要)",
+      "group": "network",
+      "type": "text",
+      "options": [],
+      "placeholder": "http://192.168.2.5:8080"
+    },
+    {
+      "key": "web_music_proxy",
+      "label": "网络歌曲过代理",
+      "group": "network",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "disable_download",
+      "label": "关闭下载功能",
+      "group": "network",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "enable_yt_dlp_cookies",
+      "label": "启用yt-dlp-cookies(需要先上传yt-dlp-cookies.txt文件)",
+      "group": "network",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "yt_dlp_cookies_file",
+      "label": "上传yt_dlp_cookies.txt文件",
+      "group": "network",
+      "type": "file",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "group_list",
+      "label": "设备分组配置（不推荐，声音不同步）",
+      "group": "device",
+      "type": "text",
+      "options": [],
+      "placeholder": "did1:组名1,did2:组名1,did3:组名2"
+    },
+    {
+      "key": "enable_pull_ask",
+      "label": "获取对话记录",
+      "group": "device",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "pull_ask_sec",
+      "label": "获取对话记录间隔(秒)",
+      "group": "device",
+      "type": "number",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "get_ask_by_mina",
+      "label": "特殊型号获取对话记录",
+      "group": "device",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "music_list_url",
+      "label": "歌单地址",
+      "group": "playlist",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "music_list_json",
+      "label": "歌单内容",
+      "group": "playlist",
+      "type": "textarea",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "crontab_json",
+      "label": "定时任务",
+      "group": "playlist",
+      "type": "textarea",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "disable_httpauth",
+      "label": "关闭控制台密码验证",
+      "group": "security",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "httpauth_username",
+      "label": "控制台账户",
+      "group": "security",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "httpauth_password",
+      "label": "控制台密码",
+      "group": "security",
+      "type": "password",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "verbose",
+      "label": "是否开启调试日志",
+      "group": "other",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "log_file",
+      "label": "日志路径",
+      "group": "other",
+      "type": "text",
+      "options": [],
+      "placeholder": ""
+    },
+    {
+      "key": "enable_analytics",
+      "label": "开启谷歌数据统计(无敏感数据)",
+      "group": "other",
+      "type": "select",
+      "options": [
+        {
+          "value": "true",
+          "label": "true"
+        },
+        {
+          "value": "false",
+          "label": "false"
+        }
+      ],
+      "placeholder": ""
+    }
+  ]
+}
