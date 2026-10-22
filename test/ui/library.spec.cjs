@@ -651,9 +651,8 @@ socketServer.on("connection", (socket, req) => {
     await page.locator("[data-save-settings]").first().click();
     await page.waitForFunction(
       () =>
-        !document
-          .querySelector("[data-save-settings]")
-          .textContent.includes("正在保存"),
+        document.querySelector("[data-save-settings]")?.textContent ===
+        "保存配置",
     );
     assert.equal(voiceEnabled, false);
     assert.deepEqual(savedPayloads.at(-1), { enable_pull_ask: false });
@@ -685,9 +684,8 @@ socketServer.on("connection", (socket, req) => {
     await page.locator("[data-save-settings]").first().click();
     await page.waitForFunction(
       () =>
-        !document
-          .querySelector("[data-save-settings]")
-          .textContent.includes("正在保存"),
+        document.querySelector("[data-save-settings]")?.textContent ===
+        "保存配置",
     );
     assert.deepEqual(savedPayloads.at(-1), {
       exclude_dirs: "@eaDir,tmp,private",
@@ -722,9 +720,8 @@ socketServer.on("connection", (socket, req) => {
     await page.locator("[data-save-settings]").first().click();
     await page.waitForFunction(
       () =>
-        !document
-          .querySelector("[data-save-settings]")
-          .textContent.includes("正在保存"),
+        document.querySelector("[data-save-settings]")?.textContent ===
+        "保存配置",
     );
     assert.equal(
       await page.locator("#setting-keywords_playlocal").inputValue(),
@@ -737,9 +734,8 @@ socketServer.on("connection", (socket, req) => {
     await page.locator("[data-save-settings]").first().click();
     await page.waitForFunction(
       () =>
-        !document
-          .querySelector("[data-save-settings]")
-          .textContent.includes("正在保存"),
+        document.querySelector("[data-save-settings]")?.textContent ===
+        "保存配置",
     );
     assert.equal(selectedDids, "a");
     await page.locator("[data-discover-devices]").click();
@@ -750,9 +746,8 @@ socketServer.on("connection", (socket, req) => {
     await page.locator("[data-save-settings]").first().click();
     await page.waitForFunction(
       () =>
-        !document
-          .querySelector("[data-save-settings]")
-          .textContent.includes("正在保存"),
+        document.querySelector("[data-save-settings]")?.textContent ===
+        "保存配置",
     );
     assert.equal(selectedDids, "a,b");
     await page.locator("[data-config-search]").fill("cookie");
