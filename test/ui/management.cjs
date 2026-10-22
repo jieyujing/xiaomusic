@@ -5,7 +5,8 @@ module.exports = async ({ page, requests, lists, artifacts }) => {
     await page.locator(`[data-manage="${action}"]`).click();
     await page.waitForFunction(
       () =>
-        !document.querySelector(".manage-editor")?.hasAttribute("aria-busy"),
+        document.querySelector(".manage-editor") !== null &&
+        !document.querySelector(".manage-editor").hasAttribute("aria-busy"),
     );
   };
   const last = (endpoint) => requests.filter((r) => r.path === endpoint).at(-1);
@@ -29,7 +30,9 @@ module.exports = async ({ page, requests, lists, artifacts }) => {
   assert.deepEqual(lists["晚间精选"], ["王菲－红豆", "周杰伦－晴天"]);
   await page.locator('[data-manage="song-remove"]').first().click();
   await page.waitForFunction(
-    () => !document.querySelector(".manage-editor").hasAttribute("aria-busy"),
+    () =>
+      document.querySelector(".manage-editor") !== null &&
+      !document.querySelector(".manage-editor").hasAttribute("aria-busy"),
   );
   assert.deepEqual(lists["晚间精选"], ["周杰伦－晴天"]);
   // Duplicate creation is an application error and keeps the entered name.
