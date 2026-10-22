@@ -30,7 +30,7 @@ jobs:
           node-version: '22'
       - name: Install isolated browser test runtime
         run: |
-          npm install --prefix /tmp/xiaomusic-ui-test playwright@1.56.1
+          npm install --prefix /tmp/xiaomusic-ui-test playwright@1.62.1
           /tmp/xiaomusic-ui-test/node_modules/.bin/playwright install --with-deps chromium
       - name: Check generated inventories
         run: |

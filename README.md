@@ -73,7 +73,7 @@ docker run --rm --network none --entrypoint /app/.venv/bin/python3 \
 浏览器回归使用隔离的 HTTP/WebSocket fixture，不操作真实音箱：
 
 ```sh
-npm install --prefix /tmp/xiaomusic-ui-test playwright@1.56.1
+npm install --prefix /tmp/xiaomusic-ui-test playwright@1.62.1
 /tmp/xiaomusic-ui-test/node_modules/.bin/playwright install chromium
 NODE_PATH=/tmp/xiaomusic-ui-test/node_modules node test/ui/library.spec.cjs
 ```
